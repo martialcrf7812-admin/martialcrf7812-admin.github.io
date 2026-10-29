@@ -1,0 +1,251 @@
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizz Hémorragies – réactivation mémoire PSC</title>
+<style>
+:root{
+  --bg:#faf7f6; --card:#ffffff; --ink:#1f1f1f; --muted:#6b6b6b; --line:#e4dcda;
+  --accent:#a4161a; --acctint:#fbe9ea;
+  --ok:#1b7a3d; --oktint:#e3f4e8; --ko:#b3261e; --kotint:#fdeceb;
+  --fs:17px;
+}
+@media (max-width:899px){
+  .wrap{padding:8px 8px 24px}
+  .card{min-height:75vh; padding:20px}
+  body{--fs:19px}
+  :root{--bg:#161313; --card:#221e1e; --ink:#f1eceb; --muted:#a9a09e; --line:#3a3333;
+    --accent:#ff7b80; --acctint:#3a1f21;
+    --ok:#6fd08c; --oktint:#1b3524; --ko:#ff8a80; --kotint:#3d2321;}
+}
+body.big{--fs:22px}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:var(--fs)/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.brand{font-size:.72em;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.tools button{font:inherit;font-size:.8em;background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 12px;cursor:pointer}
+h1{font-size:1.8em;line-height:1.15;margin:.2em 0 .15em;color:var(--accent)}
+h2{font-size:1.15em;margin:0 0 .4em}
+p{margin:.4em 0}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 12px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:.85em;color:var(--muted);gap:8px}
+.chip{display:inline-block;font-size:.78em;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--acctint);color:var(--accent)}
+.q{font-size:1.12em;font-weight:700;margin:.6em 0 .8em}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;font:inherit;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt b{min-width:1.4em;color:var(--accent)}
+.opt.good{border-color:var(--ok);background:var(--oktint)}
+.opt.bad{border-color:var(--ko);background:var(--kotint)}
+.opt:disabled{cursor:default}
+.vf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vf .opt{justify-content:center;font-weight:700;font-size:1.1em;padding:18px}
+.picked{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;margin:8px 0;padding:8px;border:2px dashed var(--line);border-radius:12px}
+.pill{background:var(--acctint);color:var(--accent);font-weight:700;border-radius:8px;padding:4px 10px;font-size:.9em}
+.btn{font:inherit;font-weight:700;border:none;border-radius:12px;padding:12px 18px;cursor:pointer;background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.btn{color:#161313}}
+.btn.sec{background:none;color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.row .btn{flex:1 1 140px}
+.fb{border-radius:12px;padding:12px 14px;margin-top:12px}
+.fb.ok{background:var(--oktint);border:1px solid var(--ok)}
+.fb.ko{background:var(--kotint);border:1px solid var(--ko)}
+.fb h3{margin:0 0 4px;font-size:1em}
+.fb ol{margin:.3em 0 .3em 1.2em;padding:0}
+.why{margin-top:8px;font-size:.93em}
+.ref{margin-top:6px;font-size:.8em;color:var(--muted)}
+.score{font-size:3em;font-weight:800;color:var(--accent);line-height:1}
+.review{border-top:1px solid var(--line);padding:10px 0}
+.review:first-child{border-top:none}
+.stat{display:flex;gap:14px;font-size:.85em}
+.stat b{color:var(--accent)}
+.types{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Réactivation mémoire · PSC</div>
+    <div class="tools"><button id="big" type="button" aria-pressed="false">Mode projection</button></div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+const GAME = {"title":"Hémorragies","intro":"Reconnaître une hémorragie externe, comprimer, relayer par un pansement compressif, poser un garrot, et savoir quoi faire pour un saignement de nez ou un vomissement de sang.","duration":"10 minutes","source":"Premiers secours citoyen, guide technique, Croix-Rouge française, septembre 2024 (hémorragie externe, p. 38 à 42).","questions":[{"type":"qcm","ref":"p. 38","q":"Qu'est-ce qu'une hémorragie externe ?","options":["Une perte de sang abondante, visible et prolongée, qui ne s'arrête pas spontanément","Toute plaie qui saigne, même une simple égratignure","Une perte de sang qui s'arrête d'elle-même en quelques secondes","Un saignement que l'on ne voit pas, à l'intérieur du corps"],"why":"Une écorchure, une éraflure ou une abrasion qui s'arrête spontanément n'est pas une hémorragie externe. Elle imbibe de sang un mouchoir en quelques secondes."},{"type":"vf","ref":"p. 38","q":"Un saignement dû à une éraflure qui s'arrête spontanément n'est pas une hémorragie externe.","answer":true,"why":"L'hémorragie externe est une perte de sang abondante et prolongée qui ne s'arrête pas toute seule. L'éraflure relève du chapitre « Plaie »."},{"type":"qcm","ref":"p. 40","q":"Le secouriste risque d'entrer en contact avec le sang de la victime. Comment se protège-t-il ?","options":["Il porte des gants ou, à défaut, glisse sa main dans un sac plastique","Il attend d'avoir un masque avant de toucher la victime","Il comprime à mains nues : le risque est négligeable","Il fait uniquement alerter les secours sans toucher la victime"],"why":"Le risque est d'être infecté par une maladie transmissible en cas de plaie ou de projection sur la bouche ou les yeux. Après l'action : se laver les mains, retirer les vêtements souillés, demander un avis médical si plaie ou projection au visage."},{"type":"order","ref":"p. 39","q":"Saignement abondant au travers d'une plaie : remets les actions dans l'ordre.","items":["Demander à la victime de comprimer immédiatement l'endroit qui saigne (ou le faire à sa place)","Faire maintenir ou maintenir la compression","Allonger confortablement la victime","Alerter les secours"],"why":"La compression est immédiate et permanente. L'allonger retarde l'installation d'une détresse liée à la perte de sang. Puis on alerte les secours."},{"type":"vf","ref":"p. 41","q":"Un pansement compressif est impossible à réaliser lorsque le saignement siège au niveau du cou, du thorax ou de l'abdomen.","answer":true,"why":"Dans ces zones, seule la compression manuelle directe est possible."},{"type":"qcm","ref":"p. 39 et 41","q":"Dans quel cas le pansement compressif peut-il remplacer la compression manuelle ?","options":["Seulement si la compression manuelle a permis d'arrêter le saignement","Dans tous les cas, dès le début du saignement","Uniquement lorsque la victime est inconsciente","Quand le saignement est situé au cou ou au thorax"],"why":"Il sert à libérer le sauveteur (par exemple pour alerter) mais ne peut pas remplacer la compression manuelle si l'hémorragie n'est pas contrôlée."},{"type":"vf","ref":"p. 39","q":"Si le saignement continue à travers le pansement compressif, on le retire pour en refaire un neuf.","answer":false,"why":"On reprend une compression manuelle directe par-dessus le pansement compressif."},{"type":"order","ref":"p. 39 et 40","q":"La victime saigne du nez : remets les gestes dans l'ordre.","items":["L'asseoir, tête penchée en avant (ne pas l'allonger)","Lui demander de se moucher vigoureusement","Lui demander de se comprimer les deux narines avec les doigts, 10 minutes, sans relâcher"],"why":"Un avis médical est nécessaire si le saignement survient après une chute ou un coup, s'il ne s'arrête pas ou se reproduit, ou si la victime prend des médicaments qui augmentent les saignements."},{"type":"qcm","ref":"p. 39 et 42","q":"Dans quel cas pose-t-on un garrot ?","options":["Hémorragie d'un membre, lorsque la compression directe est inefficace ou impossible","Dès l'arrivée du secouriste, pour toute plaie d'un membre","Hémorragie du cou, lorsque la victime est inconsciente","Lorsque la victime présente des sueurs et une grande pâleur"],"why":"Compression inefficace : le saignement persiste malgré la compression. Compression impossible : nombreuses victimes, situation de violence collective ou de guerre, nombreuses lésions, plaie inaccessible, corps étranger."},{"type":"vf","ref":"p. 42","q":"Pour être plus efficace, le garrot se place sur une articulation.","answer":false,"why":"Le garrot est placé entre le cœur et la plaie, jamais sur une articulation."},{"type":"qcm","ref":"p. 42","q":"Où place-t-on idéalement le garrot ?","options":["À 5 à 7 centimètres au-dessus de la plaie, entre le cœur et la plaie","À 5 à 7 centimètres en dessous de la plaie","Directement sur la plaie","Sur l'articulation la plus proche de la plaie"],"why":"Le garrot doit être situé en amont de la plaie qui saigne et serré pour arrêter le saignement."},{"type":"order","ref":"p. 42","q":"Garrot improvisé : remets les étapes dans l'ordre.","items":["Faire 2 tours autour du membre avec le lien large, à l'endroit où le garrot doit être placé","Faire un nœud","Placer la barre au-dessus du nœud et faire deux nœuds par-dessus pour la maintenir","Tourner la barre pour serrer le garrot jusqu'à l'arrêt du saignement","Maintenir le serrage"],"why":"Le lien est en toile solide, non élastique, de 3 à 5 cm de large et d'environ 1,50 m. La barre mesure 10 à 20 cm environ (bois solide, PVC dur ou métal rigide)."},{"type":"vf","ref":"p. 42","q":"Une fois en place, le garrot doit rester visible et ne jamais être retiré sans avis médical.","answer":true,"why":"On ne le recouvre pas et on ne le desserre pas : c'est le service de secours qui décide."},{"type":"qcm","ref":"p. 39","q":"Une victime qui saigne présente des sueurs abondantes, une sensation de froid, une pâleur intense. Que fais-tu ?","options":["Je contacte à nouveau les secours pour signaler l'aggravation et je me prépare à la suite (perte de connaissance, arrêt cardiaque)","Je desserre la compression pour laisser le sang circuler","Je l'assois pour qu'elle reprenne ses esprits","Je continue simplement, ces signes sont normaux"],"why":"Pâleur, froid et sueurs signalent une aggravation. Il faut aussi rassurer la victime, la protéger du froid et surveiller l'apparition d'autres signes."},{"type":"qcm","ref":"p. 39","q":"La victime vomit ou crache du sang. Quelle position adopter ?","options":["Là où elle se sent le mieux si elle est consciente, en PLS si elle a perdu connaissance","Allongée sur le dos dans tous les cas","Debout, pour faciliter l'évacuation du sang","Penchée en avant, tête basse, dans tous les cas"],"why":"C'est un signe pouvant traduire une maladie grave : il faut faire alerter ou alerter les secours, appliquer leurs consignes et surveiller en permanence."}]};
+const L = ["A","B","C","D","E","F"];
+const app = document.getElementById("app");
+let S = null;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const same = (a,b) => a.every((v,i) => v === b[i]);
+
+document.getElementById("big").addEventListener("click", e => {
+  const on = document.body.classList.toggle("big");
+  e.target.setAttribute("aria-pressed", on);
+});
+
+// Prépare une partie : options des QCM et étapes des remises en ordre mélangées à chaque fois
+function prepare(q){
+  const c = {...q};
+  if (q.type === "qcm") {
+    const opts = q.options.map((t,i) => ({t, good: i === 0}));
+    c.opts = shuffle(opts);
+  } else if (q.type === "order") {
+    let idx = q.items.map((_,i) => i), sh;
+    do { sh = shuffle(idx); } while (sh.length > 1 && same(sh, idx));
+    c.display = sh; // display[k] = index d'origine (= rang correct)
+  }
+  return c;
+}
+
+function showIntro(){
+  S = null;
+  const n = GAME.questions.length;
+  const cnt = t => GAME.questions.filter(q => q.type === t).length;
+  app.innerHTML = `
+    <span class="chip">Thématique</span>
+    <h1>${esc(GAME.title)}</h1>
+    <p class="muted">${esc(GAME.intro)}</p>
+    <div class="card">
+      <div><b>${n} questions</b> · environ ${esc(GAME.duration)}</div>
+      <div class="types muted" style="font-size:.9em">QCM (${cnt("qcm")}) · Vrai/faux (${cnt("vf")}) · Remise en ordre (${cnt("order")})</div>
+      <p class="muted" style="font-size:.85em">Chaque réponse est suivie de l'explication et de sa référence dans le guide technique. Pas de note : le but est de réactiver les souvenirs.</p>
+      <div class="row"><button class="btn" id="go" type="button">Commencer</button></div>
+    </div>
+    <p class="muted" style="font-size:.8em">Source : ${esc(GAME.source)}</p>`;
+  document.getElementById("go").addEventListener("click", start);
+}
+
+function start(){
+  S = { qs: GAME.questions.map(prepare), i:0, score:0, streak:0, best:0, res:[] };
+  renderQ();
+}
+
+function renderQ(){
+  const q = S.qs[S.i];
+  const pct = Math.round(S.i / S.qs.length * 100);
+  const label = {vf:"Vrai ou faux", qcm:"QCM", order:"Remise en ordre"}[q.type];
+  app.innerHTML = `
+    <div class="meta"><span>Question ${S.i+1} / ${S.qs.length}</span>
+      <span class="stat"><span>Score <b>${S.score}</b></span><span>Série <b>${S.streak}</b></span></span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="card">
+      <span class="chip">${label}</span>
+      <div class="q">${esc(q.q)}</div>
+      <div id="zone"></div>
+      <div id="fb"></div>
+    </div>`;
+  const z = document.getElementById("zone");
+  ({vf:renderVF, qcm:renderQCM, order:renderOrder})[q.type](q, z);
+}
+
+function answerHTML(q){
+  if (q.type === "vf") return `<b>${q.answer ? "Vrai" : "Faux"}</b>`;
+  if (q.type === "qcm") return `<b>${esc(q.options[0])}</b>`;
+  return `<ol>${q.items.map(t => `<li>${esc(t)}</li>`).join("")}</ol>`;
+}
+
+function conclude(ok){
+  const q = S.qs[S.i];
+  S.res.push({q, ok});
+  if (ok){ S.streak++; S.best = Math.max(S.best, S.streak); S.score += 10 + Math.min(S.streak-1, 4)*2; }
+  else S.streak = 0;
+  const last = S.i === S.qs.length-1;
+  document.getElementById("fb").innerHTML = `
+    <div class="fb ${ok ? "ok" : "ko"}" role="status">
+      <h3>${ok ? "Bonne réponse !" : "Pas tout à fait"}</h3>
+      ${ok && q.type !== "order" ? "" : `<div>Réponse attendue : ${answerHTML(q)}</div>`}
+      <div class="why">${esc(q.why)}</div>
+      <div class="ref">Guide technique PSC, ${esc(q.ref)}</div>
+    </div>
+    <div class="row"><button class="btn" id="next" type="button">${last ? "Voir mon bilan" : "Question suivante"}</button></div>`;
+  const nx = document.getElementById("next");
+  nx.addEventListener("click", () => { if (last) renderEnd(); else { S.i++; renderQ(); } });
+  nx.focus();
+  const st = app.querySelector(".stat"); if (st) st.innerHTML = `<span>Score <b>${S.score}</b></span><span>Série <b>${S.streak}</b></span>`;
+}
+
+function renderVF(q, z){
+  z.innerHTML = `<div class="vf"><button class="opt" data-v="1" type="button">Vrai</button><button class="opt" data-v="0" type="button">Faux</button></div>`;
+  z.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => {
+    const v = b.dataset.v === "1", ok = v === q.answer;
+    z.querySelectorAll(".opt").forEach(x => { x.disabled = true; if ((x.dataset.v === "1") === q.answer) x.classList.add("good"); });
+    if (!ok) b.classList.add("bad");
+    conclude(ok);
+  }));
+}
+
+function renderQCM(q, z){
+  z.innerHTML = q.opts.map((o,i) => `<button class="opt" data-i="${i}" type="button"><b>${L[i]}.</b><span>${esc(o.t)}</span></button>`).join("");
+  z.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i, ok = q.opts[i].good;
+    z.querySelectorAll(".opt").forEach(x => { x.disabled = true; if (q.opts[+x.dataset.i].good) x.classList.add("good"); });
+    if (!ok) b.classList.add("bad");
+    conclude(ok);
+  }));
+}
+
+function renderOrder(q, z){
+  const picked = []; // indices d'origine, dans l'ordre choisi
+  z.innerHTML = `
+    <p class="muted" style="font-size:.9em">Touche les étapes dans l'ordre, de la première à la dernière.</p>
+    <div id="items">${q.display.map((o,k) => `<button class="opt" data-o="${o}" type="button"><b>${L[k]}.</b><span>${esc(q.items[o])}</span></button>`).join("")}</div>
+    <div class="picked" id="picked" aria-live="polite"></div>
+    <div class="row"><button class="btn sec" id="clr" type="button">Effacer</button><button class="btn" id="val" type="button" disabled>Valider</button></div>`;
+  const items = z.querySelector("#items"), box = z.querySelector("#picked"), val = z.querySelector("#val");
+  const letterOf = o => L[q.display.indexOf(o)];
+  const refresh = () => {
+    box.innerHTML = picked.length ? picked.map((o,k) => `<span class="pill">${k+1}. ${letterOf(o)}</span>`).join("") : `<span class="muted" style="font-size:.85em">Ton ordre apparaît ici</span>`;
+    items.querySelectorAll(".opt").forEach(b => b.disabled = picked.includes(+b.dataset.o));
+    val.disabled = picked.length !== q.items.length;
+  };
+  items.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => { picked.push(+b.dataset.o); refresh(); }));
+  z.querySelector("#clr").addEventListener("click", () => { picked.length = 0; refresh(); });
+  val.addEventListener("click", () => {
+    const ok = picked.every((v,k) => v === k);
+    z.querySelector("#clr").disabled = true; val.disabled = true;
+    items.querySelectorAll(".opt").forEach(b => b.disabled = true);
+    conclude(ok);
+  });
+  refresh();
+}
+
+function renderEnd(){
+  const n = S.res.length, good = S.res.filter(r => r.ok).length;
+  const pct = Math.round(good / n * 100);
+  const msg = pct >= 85 ? "Excellente réactivation, les réflexes sont là." : pct >= 60 ? "Bonne base. Quelques points à consolider ci-dessous." : "Pas de souci : c'est justement le but de la réactivation. Reprends les points ci-dessous, puis rejoue.";
+  const misses = S.res.filter(r => !r.ok);
+  app.innerHTML = `
+    <span class="chip">${esc(GAME.title)}</span>
+    <h1>Bilan</h1>
+    <div class="card">
+      <div class="score">${good}<span class="muted" style="font-size:.4em"> / ${n}</span></div>
+      <p>${esc(msg)}</p>
+      <p class="muted" style="font-size:.9em">Points : <b>${S.score}</b> · Meilleure série : <b>${S.best}</b></p>
+    </div>
+    ${misses.length ? `<div class="card"><h2>À revoir (${misses.length})</h2>${misses.map(r => `
+      <div class="review">
+        <p style="margin:.2em 0"><b>${esc(r.q.q)}</b></p>
+        <div>${answerHTML(r.q)}</div>
+        <div class="why muted">${esc(r.q.why)}</div>
+        <div class="ref">Guide technique PSC, ${esc(r.q.ref)}</div></div>`).join("")}</div>`
+      : `<div class="card"><h2>Aucune erreur</h2><p>Pense maintenant à pratiquer les gestes sur mannequin pour garder la main.</p></div>`}
+    <div class="row">
+      <button class="btn" id="again" type="button">Rejouer</button>
+      <button class="btn sec" id="intro" type="button">Accueil</button>
+    </div>`;
+  document.getElementById("again").addEventListener("click", start);
+  document.getElementById("intro").addEventListener("click", showIntro);
+  window.scrollTo(0,0);
+}
+showIntro();
+</script>
+</body>
+</html>
+
